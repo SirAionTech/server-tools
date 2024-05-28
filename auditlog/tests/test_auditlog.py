@@ -193,6 +193,28 @@ class AuditlogCommon(object):
         if self.groups_rule.capture_record:
             self.assertTrue(len(log_record.line_ids) > 0)
 
+    def test_assign_empty_recordset(self):
+        """An empty recordset is assigned to a field value"""
+        self.groups_rule.subscribe()
+
+        test_group = self.env["res.groups"].create(
+            {
+                "name": "test_assign_empty_recordset",
+                "users": self.env["res.users"].browse(),
+            }
+        )
+        self.assertTrue(
+            self.env["auditlog.log"]
+            .search(
+                [
+                    ("model_id", "=", self.groups_model_id),
+                    ("method", "=", "create"),
+                    ("res_id", "=", test_group.id),
+                ]
+            )
+            .ensure_one()
+        )
+
 
 class TestAuditlogFull(TransactionCase, AuditlogCommon):
     def setUp(self):
